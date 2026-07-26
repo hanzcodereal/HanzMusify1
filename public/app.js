@@ -81,12 +81,11 @@ var App={
 
             <div class="glass rounded-2xl p-5 max-w-sm mx-auto space-y-4 text-left mb-6">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wider mb-2 border-b border-white/10 pb-2 flex items-center gap-2">
-                    <i data-lucide="user" class="w-4 h-4"></i> Developer
+                    Developer
                 </h3>
                 <div class="flex justify-between items-center">
                     <span class="text-white/70 text-sm font-medium">Developed by</span>
                     <div class="flex items-center gap-2">
-                        <i data-lucide="code" class="w-5 h-5 text-white/70"></i>
                         <span class="text-white font-bold text-sm">Hanzz</span>
                     </div>
                 </div>
