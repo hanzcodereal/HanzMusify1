@@ -1,34 +1,3 @@
-var deferredInstallPrompt=null;
-var isStandaloneApp=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
-var isIOSDevice=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
-window.addEventListener('beforeinstallprompt',function(e){
-    e.preventDefault();
-    deferredInstallPrompt=e;
-    var btn=document.getElementById('pwa-install-btn');
-    if(btn&&!isStandaloneApp)btn.classList.remove('hidden');
-});
-window.addEventListener('appinstalled',function(){
-    deferredInstallPrompt=null;
-    var btn=document.getElementById('pwa-install-btn');
-    if(btn)btn.classList.add('hidden');
-    if(typeof showToast==='function')showToast('HanzMusify berhasil diinstall!');
-});
-function installPWA(){
-    if(deferredInstallPrompt){
-        deferredInstallPrompt.prompt();
-        deferredInstallPrompt.userChoice.then(function(choice){
-            if(choice.outcome==='accepted'&&typeof showToast==='function')showToast('Menginstall HanzMusify...');
-            deferredInstallPrompt=null;
-            var btn=document.getElementById('pwa-install-btn');
-            if(btn)btn.classList.add('hidden');
-        });
-    }else if(isIOSDevice){
-        if(typeof showToast==='function')showToast('Tap ikon Bagikan lalu pilih "Add to Home Screen"');
-    }else{
-        if(typeof showToast==='function')showToast('Aplikasi sudah terinstall atau tidak didukung browser ini');
-    }
-}
-
 var App={
     init(){
         document.documentElement.classList.remove('theme-light');
@@ -73,7 +42,7 @@ var App={
             <div class="glass rounded-2xl p-5 max-w-sm mx-auto space-y-3 text-left mb-6">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wider mb-2">Aplikasi</h3>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Nama</span><span class="text-white font-medium text-sm">HanzMusify</span></div>
-                <div class="flex justify-between"><span class="text-white/70 text-sm">Versi</span><span class="text-white font-medium text-sm">v3.0.0</span></div>
+                <div class="flex justify-between"><span class="text-white/70 text-sm">Versi</span><span class="text-white font-medium text-sm">v4.0.0</span></div>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Framework</span><span class="text-white font-medium text-sm">HTML + Tailwind + JS</span></div>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Dirilis</span><span class="text-white font-medium text-sm">Juni 2026</span></div>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Hosting</span><span class="text-white font-medium text-sm">Vercel</span></div>
@@ -86,21 +55,13 @@ var App={
                 <div class="flex justify-between items-center">
                     <span class="text-white/70 text-sm font-medium">Developed by</span>
                     <div class="flex items-center gap-2">
-                        <span class="text-white font-bold text-sm">Hanzz</span>
+                        <span class="text-white font-bold text-sm">Hanz</span>
                     </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-white/70 text-sm font-medium">Email</span>
-                    <span class="text-white font-medium text-sm">hanzzcodee@gmail.com</span>
-                </div>
             </div>
-            
-            <button id="pwa-install-btn" onclick="installPWA()" class="${isStandaloneApp?'hidden ':''}w-full max-w-sm mx-auto btn-chrome font-bold py-4 rounded-full active:scale-95 transition-all text-center flex items-center justify-center gap-2 mb-3">
-                <i data-lucide="download" class="w-5 h-5"></i> Install Aplikasi
-            </button>
 
-            <a href="https://saweria.co/hanzreally" target="_blank" class="block w-full max-w-sm mx-auto btn-chrome font-bold py-4 rounded-full active:scale-95 transition-all text-center">
-                <i data-lucide="coffee" class="w-5 h-5 inline mr-2"></i> Support
+            <a href="mailto:hanzzcodee@gmail.com" class="block w-full max-w-sm mx-auto btn-chrome font-bold py-4 rounded-full active:scale-95 transition-all text-center flex items-center justify-center gap-2 mb-3">
+                <i data-lucide="mail" class="w-5 h-5"></i> Contact
             </a>
         </div>`;
         
@@ -210,18 +171,12 @@ var App={
         });
 
         var tabs = ['home', 'search', 'library', 'dev'];
-        var prevTab = S.at || 'home';
-        var prevIndex = tabs.indexOf(prevTab);
-        var nextIndex = tabs.indexOf(t);
 
         S.at = t;
 
         tabs.forEach(function(id){
             var el = gid('view-' + id);
-            if(el) {
-                el.style.display = 'none';
-                el.classList.remove('animate-slide-right', 'animate-slide-left');
-            }
+            if(el) el.style.display = 'none';
         });
 
         if(t==='library'){Library.render();}
@@ -235,16 +190,7 @@ var App={
         if(t==='search'){Search.onShow();}
 
         var targetEl = gid('view-' + t);
-        if(targetEl) {
-            targetEl.style.display = 'block';
-            if(prevIndex !== -1 && nextIndex !== -1 && prevIndex !== nextIndex) {
-                if(nextIndex > prevIndex) {
-                    targetEl.classList.add('animate-slide-right');
-                } else {
-                    targetEl.classList.add('animate-slide-left');
-                }
-            }
-        }
+        if(targetEl) targetEl.style.display = 'block';
 
         ['home','search','library','dev'].forEach(function(n){
             var b=gid('nav-'+n);
@@ -255,17 +201,17 @@ var App={
 
             if(isCurrent){
                 if(wrapper){
-                    wrapper.className = 'nav-icon-wrapper w-11 h-11 rounded-full flex items-center justify-center text-white btn-chrome  shadow-white/30 border-2 border-white/30 -translate-y-3.5 scale-110 transition-all duration-300';
+                    wrapper.className = 'nav-icon-wrapper w-11 h-11 rounded-full flex items-center justify-center text-white btn-chrome shadow-white/30 border-2 border-white/30 -translate-y-3.5 scale-110';
                 }
                 if(label){
-                    label.className = 'nav-label text-[11px] font-black text-white -translate-y-1 tracking-wider chrome-text transition-all duration-300';
+                    label.className = 'nav-label text-[11px] font-black text-white -translate-y-1 tracking-wider chrome-text';
                 }
             } else {
                 if(wrapper){
-                    wrapper.className = 'nav-icon-wrapper w-10 h-10 rounded-full flex items-center justify-center text-[#8e95a2] hover:text-white bg-transparent translate-y-0 transition-all duration-300';
+                    wrapper.className = 'nav-icon-wrapper w-10 h-10 rounded-full flex items-center justify-center text-[#8e95a2] hover:text-white bg-transparent translate-y-0';
                 }
                 if(label){
-                    label.className = 'nav-label text-[10px] font-semibold text-[#8e95a2] translate-y-0 transition-all duration-300';
+                    label.className = 'nav-label text-[10px] font-semibold text-[#8e95a2] translate-y-0';
                 }
             }
         });
@@ -307,15 +253,17 @@ var Library={
         var likedSongs = typeof getLikedSongs === 'function' ? getLikedSongs() : [];
         var pls = typeof getUserPlaylists === 'function' ? getUserPlaylists() : [];
         var likedArtists = typeof getLikedArtists === 'function' ? getLikedArtists() : [];
+        var historySongs = typeof getHistorySongs === 'function' ? getHistorySongs() : [];
         var isLikedTab = Library.activeTab === 'liked';
         var isPlaylistsTab = Library.activeTab === 'playlists';
         var isArtistsTab = Library.activeTab === 'artists';
+        var isHistoryTab = Library.activeTab === 'history';
 
         var html = '<div class="pt-12 px-4 pb-12">' +
             '<div class="flex items-center justify-between mb-4">' +
                 '<h1 class="text-3xl font-black chrome-text">Library</h1>' +
             '</div>' +
-            '<div class="flex gap-1 p-1 bg-white/5 rounded-2xl mb-5 border border-white/5">' +
+            '<div class="flex gap-1 p-1 bg-white/5 rounded-2xl mb-5 border border-white/5 overflow-x-auto hide-scrollbar">' +
                 '<button onclick="Library.setTab(\'liked\')" class="flex-1 py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ' + (isLikedTab ? 'btn-chrome text-white ' : 'text-[#a0a5b0] hover:text-white') + '">' +
                     '<i data-lucide="heart" class="w-3.5 h-3.5 ' + (isLikedTab ? 'fill-current text-rose-400' : '') + '"></i>' +
                     '<span>Disukai</span>' +
@@ -327,6 +275,10 @@ var Library={
                 '<button onclick="Library.setTab(\'playlists\')" class="flex-1 py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ' + (isPlaylistsTab ? 'btn-chrome text-white ' : 'text-[#a0a5b0] hover:text-white') + '">' +
                     '<i data-lucide="list-music" class="w-3.5 h-3.5 ' + (isPlaylistsTab ? 'text-blue-400' : '') + '"></i>' +
                     '<span>Playlist</span>' +
+                '</button>' +
+                '<button onclick="Library.setTab(\'history\')" class="flex-1 py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ' + (isHistoryTab ? 'btn-chrome text-white ' : 'text-[#a0a5b0] hover:text-white') + '">' +
+                    '<i data-lucide="history" class="w-3.5 h-3.5 ' + (isHistoryTab ? 'text-emerald-400' : '') + '"></i>' +
+                    '<span>Riwayat</span>' +
                 '</button>' +
             '</div>';
 
@@ -451,11 +403,111 @@ var Library={
                 });
                 html += '</div>';
             }
+        } else if (isHistoryTab) {
+            if(historySongs.length === 0){
+                html += '<div class="text-center text-white/70 py-16 px-4 glass rounded-3xl border border-white/5 mt-2">' +
+                    '<div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">' +
+                        '<i data-lucide="history" class="w-10 h-10 text-emerald-400 opacity-60"></i>' +
+                    '</div>' +
+                    '<h3 class="text-white font-bold text-lg mb-1">Belum Ada Riwayat</h3>' +
+                    '<p class="text-xs text-white/70 max-w-xs mx-auto mb-6">Lagu yang kamu putar akan muncul di sini selama 7 hari terakhir.</p>' +
+                    '<button onclick="App.switch(\'search\')" class="btn-chrome px-6 py-3 font-bold rounded-full text-xs active:scale-95">Cari & Temukan Lagu</button>' +
+                '</div>';
+            } else {
+                html += '<div class="flex items-center justify-between mb-5">' +
+                    '<div>' +
+                        '<h2 class="text-lg font-black text-white">Riwayat Putar</h2>' +
+                        '<p class="text-xs text-[#b3b3b3] mt-0.5">' + historySongs.length + ' lagu dalam 7 hari terakhir</p>' +
+                    '</div>' +
+                    '<button onclick="Library.confirmClearHistory()" class="text-red-400 hover:text-red-300 text-xs font-bold px-3 py-2 rounded-full bg-red-500/10 border border-red-500/20 active:scale-95 transition-all">Hapus Semua</button>' +
+                '</div>' +
+                '<div id="history-songs-list" class="space-y-1.5">';
+
+                historySongs.forEach(function(s, i){
+                    var isCur = S.ct && (
+                        S.ct.id === s.id ||
+                        S.ct.videoId === s.videoId ||
+                        (S.ct.title === s.title && S.ct.artist === s.artist)
+                    );
+                    var isPlay = isCur && S.ip;
+                    var isLoad = isCur && S.il;
+
+                    var iconOverlay = '';
+                    if (isLoad) {
+                        iconOverlay = '<div class="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>';
+                    } else if (isPlay) {
+                        iconOverlay = '<div class="flex items-end justify-center gap-[2px] w-5 h-5 pb-0.5"><span class="w-[2px] bg-emerald-400 rounded-full animate-eq-1"></span><span class="w-[2px] bg-emerald-400 rounded-full animate-eq-2"></span><span class="w-[2px] bg-emerald-400 rounded-full animate-eq-3"></span></div>';
+                    } else if (isCur) {
+                        iconOverlay = '<i data-lucide="pause" class="w-5 h-5 text-emerald-400 fill-current"></i>';
+                    } else {
+                        iconOverlay = '<i data-lucide="play" class="w-5 h-5 text-white fill-white"></i>';
+                    }
+
+                    var rowBg = isPlay ? 'bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent border border-emerald-500/30 shadow-md' : (isCur ? 'bg-white/10 border border-white/20' : 'hover:bg-white/5 border border-transparent hover:border-white/5');
+                    var titleClass = isCur ? 'text-emerald-400 font-bold' : 'text-white font-bold';
+
+                    html += '<div class="flex items-center gap-3 p-2.5 rounded-2xl active:scale-[0.99] transition-all group ' + rowBg + '">' +
+                        '<div onclick="Library.playHistoryIndex(' + i + ')" class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">' +
+                            '<div class="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 shadow-md">' +
+                                '<img src="' + s.cover + '" class="w-full h-full object-cover" onerror="this.src=\'' + FI + '\'" />' +
+                                '<div class="absolute inset-0 bg-black/80 ' + (isCur ? 'opacity-100' : 'opacity-0 group-hover:opacity-100') + ' transition-all flex items-center justify-center">' +
+                                    iconOverlay +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="truncate flex-1">' +
+                                '<p class="text-sm truncate transition-colors ' + titleClass + '">' + es(s.title) + '</p>' +
+                                '<p class="text-white/70 text-xs truncate mt-0.5">' + es(s.artist) + ' &middot; ' + Library.timeAgo(s.playedAt) + '</p>' +
+                            '</div>' +
+                        '</div>' +
+                        '<button onclick="Library.removeHistoryItem(\'' + esJs(s.videoId) + '\')" class="p-2 text-white/70 hover:text-red-400 active:scale-90 transition-all" title="Hapus dari Riwayat">' +
+                            '<i data-lucide="x" class="w-5 h-5"></i>' +
+                        '</button>' +
+                    '</div>';
+                });
+
+                html += '</div>';
+            }
         }
 
         html += '</div>';
         gid('view-library').innerHTML = html;
         lucide.createIcons();
+    },
+    timeAgo(ts){
+        var diff = Math.max(0, Date.now() - (ts || 0));
+        var mins = Math.floor(diff / 60000);
+        if(mins < 1) return 'Baru saja';
+        if(mins < 60) return mins + ' menit lalu';
+        var hours = Math.floor(mins / 60);
+        if(hours < 24) return hours + ' jam lalu';
+        var days = Math.floor(hours / 24);
+        return days + ' hari lalu';
+    },
+    playHistoryIndex(index){
+        var songs = typeof getHistorySongs === 'function' ? getHistorySongs() : [];
+        if(!songs[index]) return;
+        var s = songs[index];
+        if (S.ct && (S.ct.id === s.id || S.ct.videoId === s.videoId || (S.ct.title === s.title && S.ct.artist === s.artist)) && AU.src) {
+            TP();
+            return;
+        }
+        S.pl = songs;
+        S.pi = index;
+        S.ps = 'playlist';
+        S.ct = S.pl[S.pi];
+        UU(); MP.show(); S.il = true; UB();
+        resetLyricsUI(S.ct.videoId);
+        loadTrack(S.ct);
+    },
+    removeHistoryItem(videoId){
+        if(typeof removeFromHistory === 'function') removeFromHistory(videoId);
+        Library.render();
+    },
+    confirmClearHistory(){
+        var popup=document.createElement('div');popup.className='fixed inset-0 z-[300] flex items-end justify-center bg-black/60';
+        popup.onclick=function(e){if(e.target===popup)popup.remove();};
+        popup.innerHTML='<div class="glass-strong w-full max-w-md rounded-t-3xl p-6 border-t border-white/10" style="animation:slideUp 0.3s ease-out forwards;"><div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div><h3 class="font-bold text-white mb-2">Hapus Semua Riwayat?</h3><p class="text-white/70 text-sm mb-5">Seluruh riwayat lagu yang diputar akan dihapus permanen dan tidak bisa dikembalikan.</p><div class="flex gap-3"><button onclick="clearHistory();this.closest(\'.fixed\').remove();" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-full active:scale-95">Hapus</button><button onclick="this.closest(\'.fixed\').remove()" class="px-6 py-3 glass glass-hover text-white rounded-full">Batal</button></div></div>';
+        document.body.appendChild(popup);
     },
     playAllLiked(){
         var songs = typeof getLikedSongs === 'function' ? getLikedSongs() : [];

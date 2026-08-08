@@ -1,4 +1,4 @@
-const API={search:'/api/search',artist:'/api/artist',suggest:'/api/suggest',lyrics:'/api/lyrics',ytplay:'/api/ytplay'};
+const API={search:'/api/search',artist:'/api/artist',album:'/api/album',suggest:'/api/suggest',lyrics:'/api/lyrics',ytplay:'/api/ytplay',proxyAudio:'/api/proxy-audio'};
 const FI='data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2523374151%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20width%3D%22100%2525%22%20height%3D%22100%2525%22%20fill%3D%22%252318181b%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%252327272a%22%20stroke%3D%22none%22%2F%3E%3Cpath%20d%3D%22M9%2017V5l10-2v12%22%20stroke%3D%22%252352525b%22%20stroke-width%3D%221%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2217%22%20r%3D%223%22%20fill%3D%22%252352525b%22%20stroke%3D%22none%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2215%22%20r%3D%223%22%20fill%3D%22%252352525b%22%20stroke%3D%22none%22%2F%3E%3C%2Fsvg%3E';
 
 function toHDCover(url, videoId) {
@@ -279,6 +279,7 @@ function loadTrack(track,resumeAt){
     if(!track)return;
     ST();
     try{AU.pause();}catch(e){}
+    addToHistory(track);
     fetchAudioAndPlay(track,resumeAt);
 }
 
@@ -292,7 +293,7 @@ async function fetchAudioAndPlay(track,resumeAt){
         if(d&&d.status&&d.result&&d.result.download&&d.result.download.audio){
             var audioUrl = d.result.download.audio;
             if (audioCtx) {
-                AU.src = '/api/proxy-audio?url=' + encodeURIComponent(audioUrl);
+                AU.src = API.proxyAudio+'?url=' + encodeURIComponent(audioUrl);
             } else {
                 AU.removeAttribute('crossorigin');
                 AU.src = audioUrl;
@@ -600,6 +601,46 @@ function toggleLyrics(){
             ULH(S.pt, true);
         }
     }
+}
+
+var HISTORY_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+function getHistorySongs(){
+    var list;
+    try{ list = JSON.parse(localStorage.getItem('hanz_history') || '[]'); }catch(e){ return []; }
+    var now = Date.now();
+    var fresh = list.filter(function(s){ return s.playedAt && (now - s.playedAt) < HISTORY_MAX_AGE_MS; });
+    if(fresh.length !== list.length){
+        try{ localStorage.setItem('hanz_history', JSON.stringify(fresh)); }catch(e){}
+    }
+    return fresh;
+}
+function addToHistory(track){
+    if(!track || !track.videoId) return;
+    var list = getHistorySongs();
+    var index = list.findIndex(function(s){ return s.videoId === track.videoId; });
+    if(index >= 0) list.splice(index, 1);
+    list.unshift({
+        id: track.id || track.videoId,
+        videoId: track.videoId,
+        title: track.title,
+        artist: track.artist,
+        cover: track.cover,
+        artistId: track.artistId || '',
+        ytUrl: track.ytUrl || ('https://youtube.com/watch?v=' + track.videoId),
+        playedAt: Date.now()
+    });
+    if(list.length > 100) list = list.slice(0, 100);
+    try{ localStorage.setItem('hanz_history', JSON.stringify(list)); }catch(e){}
+    if(S.at === 'library' && typeof Library !== 'undefined' && Library.activeTab === 'history') Library.render();
+}
+function removeFromHistory(videoId){
+    var list = getHistorySongs().filter(function(s){ return s.videoId !== videoId; });
+    try{ localStorage.setItem('hanz_history', JSON.stringify(list)); }catch(e){}
+}
+function clearHistory(){
+    try{ localStorage.removeItem('hanz_history'); }catch(e){}
+    if(typeof showToast === 'function') showToast('Riwayat dihapus');
+    if(S.at === 'library' && typeof Library !== 'undefined') Library.render();
 }
 
 function getLikedSongs(){
@@ -1304,7 +1345,7 @@ function downloadCurrentSong(){
             if(d&&d.status&&d.result&&d.result.download&&d.result.download.audio){
                 var audioUrl=d.result.download.audio;
                 var a=document.createElement('a');
-                a.href='/api/proxy-audio?url='+encodeURIComponent(audioUrl);
+                a.href=API.proxyAudio+'?url='+encodeURIComponent(audioUrl);
                 a.download=(S.ct.title||'lagu').replace(/[^a-zA-Z0-9]/g,'_')+'.mp3';
                 document.body.appendChild(a);
                 a.click();

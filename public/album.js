@@ -39,7 +39,7 @@ var Album = {
             <div class="w-10 h-10 border-3 border-[#cfd3d8] border-t-transparent rounded-full animate-spin"></div>
         </div>`;
         
-        fetch('/api/album?id=' + id)
+        fetch(API.album+'?id=' + id)
         .then(res => res.json())
         .then(data => {
             if(!data.status || !data.result) {

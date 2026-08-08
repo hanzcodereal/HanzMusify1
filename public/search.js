@@ -21,7 +21,7 @@ var Search={
         }
     },
     onShow(){if(!S.sq){Search.renderRecs();}},
-    REC_ROWS:[{key:'rec0',label:'🆕 Rilis Anyar',q:'baru rilis'},{key:'rec1',label:'🌎 Barat Top',q:'barat Top'},{key:'rec2',label:'🎤 Rapp',q:'Rapp Top'}],
+    REC_ROWS:[{key:'rec0',label:'Rilis Anyar',q:'baru rilis'},{key:'rec1',label:'Barat Top',q:'barat Top'},{key:'rec2',label:'Rap',q:'Rapp Top'}],
     renderRecs(){
         var rc=gid('search-recs');if(!rc)return;
         if(S.rec0&&S.rec1&&S.rec2){Search.showRecs();return;}
@@ -176,7 +176,7 @@ var Search={
                 
                 var pl = d.status&&d.result.playlists?d.result.playlists:[];
                 var al = d.status&&d.result.albums?d.result.albums:[];
-                S.pr = [].concat(pl).concat(al); // combine playlists & albums
+                S.pr = [].concat(pl).concat(al);
                 S.art = d.status&&d.result.artists?d.result.artists:[];
 
                 gid('filter-tabs').classList.remove('hidden');
