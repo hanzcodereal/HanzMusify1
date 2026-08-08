@@ -41,7 +41,7 @@ var FullPlayer={
                     </div>
 
                     <div id="full-lyrics-view" class="hidden w-full h-full relative rounded-2xl bg-black/50 backdrop-blur-2xl border border-white/15 p-3.5 overflow-hidden flex flex-col shadow-2xl">
-                        <div id="full-inline-lyrics-scroll" class="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth relative z-10">
+                        <div id="full-inline-lyrics-scroll" class="flex-1 w-full overflow-y-auto no-scrollbar scroll-smooth relative z-10" style="touch-action:pan-y;">
                             <div id="full-inline-lyrics-loading" class="hidden h-full flex flex-col items-center justify-center text-white/50 text-xs gap-2 py-8">
                                 <div class="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                                 <span>Memuat lirik...</span>
@@ -149,7 +149,7 @@ var FullPlayer={
             </button>
 
             <div class="flex-1 flex flex-col md:flex-row w-full h-full overflow-hidden relative z-10">
-                <div id="lyrics-scroll-container" class="w-full md:w-3/5 h-full overflow-y-auto px-6 md:px-16 hide-scrollbar z-10 relative">
+                <div id="lyrics-scroll-container" class="w-full md:w-3/5 h-full overflow-y-auto px-6 md:px-16 hide-scrollbar z-10 relative" style="touch-action:pan-y;">
                     <div class="pt-[30vh] pb-[60vh] w-full max-w-3xl mx-auto md:mx-0">
                         <div id="lyrics-loading" class="flex justify-center items-center h-[30vh] w-full">
                             <div class="w-10 h-10 border-4 border-[#cfd3d8] border-t-transparent rounded-full animate-spin"></div>
@@ -280,10 +280,6 @@ var FullPlayer={
                 <button onclick="gid('full-more-sheet').remove();addCurrentToPlaylist();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
                     <i data-lucide="list-plus" class="w-5 h-5 text-white"></i>
                     <span class="text-xs font-semibold text-white/90">Playlist</span>
-                </button>
-                <button onclick="gid('full-more-sheet').remove();toggleLyrics();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
-                    <i data-lucide="mic-2" class="w-5 h-5 text-white"></i>
-                    <span class="text-xs font-semibold text-white/90">Lirik</span>
                 </button>
                 <button onclick="gid('full-more-sheet').remove();openPlaybackSpeed();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
                     <i data-lucide="gauge" class="w-5 h-5 text-white"></i>

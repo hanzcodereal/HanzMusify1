@@ -507,7 +507,8 @@ async function FL(vid){
 }
 
 function ULH(ct, forceScroll){
-    if(!S.lo) return;
+    var lyricsVisible = S.lo || (typeof FullPlayer !== 'undefined' && FullPlayer.currentViewMode === 'lyrics');
+    if(!lyricsVisible) return;
     if(!S.ld || !S.ld.lines || S.ld.lines.length===0 || S.ld.type === 'plain') return;
     var checkTime = ct + 0.18;
     var ni=-1;
