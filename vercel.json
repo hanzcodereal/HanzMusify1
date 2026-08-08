@@ -3,10 +3,6 @@
   "rewrites": [
     { "source": "/api/search", "destination": "/api/search" },
     { "source": "/api/lyrics", "destination": "/api/lyrics" },
-    { "source": "/api/lyrics1", "destination": "/api/lyrics1" },
-    { "source": "/api/lyrics2", "destination": "/api/lyrics2" },
-    { "source": "/api/transcribe", "destination": "/api/transcribe" },
-    { "source": "/api/translate", "destination": "/api/translate" },
     { "source": "/api/artist", "destination": "/api/artist" },
     { "source": "/api/album", "destination": "/api/album" },
     { "source": "/api/suggest", "destination": "/api/suggest" },
