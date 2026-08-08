@@ -16,7 +16,7 @@ var Album = {
                 </div>
             </div>
         </div>`;
-        lucide.createIcons();
+        safeIcons();
     },
     handleScroll() {
         const c = gid('album-content');
@@ -151,7 +151,7 @@ var Album = {
 
             html += '</div>';
             gid('album-content').innerHTML = html;
-            lucide.createIcons();
+            safeIcons();
         })
         .catch(e => {
             gid('album-content').innerHTML = '<div class="p-6 text-center text-white/70 mt-20">Gagal: '+e.message+'</div>';
@@ -202,7 +202,7 @@ var Album = {
                 titleEl.className = (isCur ? 'text-white font-bold' : 'text-white/90 font-medium') + ' text-base truncate mb-0.5';
             }
         }
-        lucide.createIcons();
+        safeIcons();
     },
     close() {
         if(window.location.pathname.startsWith('/album/')) history.pushState({},'', '/');

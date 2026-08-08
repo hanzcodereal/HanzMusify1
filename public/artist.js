@@ -10,7 +10,7 @@ var Artist={
                 <p class="text-center text-[#a0a5b0] mt-32">Memuat...</p>
             </div>
         </div>`;
-        lucide.createIcons();
+        safeIcons();
     },
     handleScroll() {
         const c = gid('artist-content');
@@ -250,7 +250,7 @@ var Artist={
                 }
                 
                 gid('artist-content').innerHTML = fullHtml + html;
-                lucide.createIcons();
+                safeIcons();
             }
         });
     },
@@ -307,7 +307,7 @@ var Artist={
                 titleEl.className = 'text-sm truncate transition-colors ' + (isCur ? 'text-white font-bold' : 'text-white/90 font-medium');
             }
         }
-        lucide.createIcons();
+        safeIcons();
     },
     toggleLike() {
         if(Artist.currentArtistInfo && typeof toggleLikeArtist === 'function') {
@@ -327,7 +327,7 @@ var Artist={
             btn.className = 'mt-3 px-6 py-2 rounded-full border text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95 text-white border-white/20 hover:bg-white/10';
             btn.innerHTML = '<i data-lucide="user-check" class="w-4 h-4"></i> <span id="artist-like-text">Sukai</span>';
         }
-        if(typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+        safeIcons();
     },
     close(){
         if(window.location.pathname.startsWith('/artist/')) history.pushState({},'', '/');

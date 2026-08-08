@@ -68,7 +68,7 @@ var App={
         MP.init();FullPlayer.init();Artist.init();Album.init();Home.render();Search.render();
         if(typeof updateOG==='function') updateOG(null);
         App.switch('home');
-        lucide.createIcons();
+        safeIcons();
         setTimeout(function(){ App.checkUrl(); }, 1000);
         window.addEventListener('popstate', function(e) {
             if (typeof Album !== 'undefined' && gid('album-modal') && gid('album-modal').style.display !== 'none') {
@@ -216,10 +216,10 @@ var App={
             }
         });
 
-        gid('main-area').scrollTop=0;lucide.createIcons();
+        gid('main-area').scrollTop=0;safeIcons();
     }
 };
-App.init();Home.fetch();
+try{App.init();Home.fetch();}catch(e){console.error('App init error:',e);}
 
 (function(){
     var sp=gid('splash-screen');
@@ -471,7 +471,7 @@ var Library={
 
         html += '</div>';
         gid('view-library').innerHTML = html;
-        lucide.createIcons();
+        safeIcons();
     },
     timeAgo(ts){
         var diff = Math.max(0, Date.now() - (ts || 0));
@@ -557,7 +557,7 @@ var Library={
             '<button onclick="this.closest(\'.fixed\').remove();Library.editPlaylist(\''+id+'\')" class="w-full text-left p-4 rounded-xl hover:bg-white/5 flex items-center gap-3 mb-1"><i data-lucide="pencil" class="w-5 h-5 text-white"></i><span class="font-medium text-white">Edit Playlist</span></button>'+
             '<button onclick="this.closest(\'.fixed\').remove();Library.confirmDelete(\''+id+'\')" class="w-full text-left p-4 rounded-xl hover:bg-red-500/10 flex items-center gap-3"><i data-lucide="trash-2" class="w-5 h-5 text-red-400"></i><span class="font-medium text-red-400">Hapus Playlist</span></button>'+
         '</div>';
-        document.body.appendChild(popup);lucide.createIcons();
+        document.body.appendChild(popup);safeIcons();
     },
     editPlaylist(id){
         var pls=getUserPlaylists();var pl=pls.find(function(p){return p.id===id;});if(!pl)return;
@@ -661,7 +661,7 @@ var Library={
         }
         html+='</div>';
         modal.innerHTML=html;
-        lucide.createIcons();
+        safeIcons();
     },
     closeModalOnly() {
         var modal = gid('library-modal');
@@ -722,7 +722,7 @@ var Library={
                 titleEl.className = 'text-sm truncate ' + (isCur ? 'text-rose-400 font-bold' : 'text-white font-medium');
             }
         }
-        lucide.createIcons();
+        safeIcons();
     },
     removeSong(plId,index){var pls=getUserPlaylists();var pl=pls.find(function(p){return p.id===plId;});if(!pl)return;pl.songs.splice(index,1);saveUserPlaylists(pls);Library.open(plId);showToast('Lagu dihapus');},
     shufflePlaylist(plId){

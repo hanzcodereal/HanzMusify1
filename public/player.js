@@ -39,6 +39,7 @@ function es(t){if(!t)return'';const d=document.createElement('div');d.textConten
 function esJs(t){if(!t)return'';return String(t).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\n/g,' ').replace(/\r/g,'');}
 function cn(t){if(!t)return'Unknown';return t.replace(/[^\x20-\x7E\xA0-\xFF\u0100-\uFFFF]/g,'').replace(/\s*-\s*Topic$/i,'').trim()||'Unknown';}
 function gid(id){return document.getElementById(id);}
+function safeIcons(){try{if(typeof lucide!=='undefined'&&lucide.createIcons)lucide.createIcons();}catch(e){}}
 
 function updateOG(title,image){
     var t=document.querySelector('meta[property="og:title"]');if(!t){t=document.createElement('meta');t.setAttribute('property','og:title');document.head.appendChild(t);}t.setAttribute('content',title+' | HanzMusify');
@@ -176,7 +177,7 @@ function UB(){
             miniBeats.querySelectorAll('.mini-beat-bar').forEach(function(b){ b.style.animationPlayState = 'paused'; });
         }
     }
-    lucide.createIcons();
+    safeIcons();
 }
 
 function setMetaTag(name, content, isProperty) {
@@ -745,7 +746,7 @@ function updateLikeButtons(){
             fullBtn.classList.add('bg-black/50', 'border-white/20');
         }
     }
-    if(typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    safeIcons();
 }
 
 function getUserPlaylists(){
@@ -958,7 +959,7 @@ function openSleepTimer() {
         contentHtml +
     '</div>';
     document.body.appendChild(popup);
-    lucide.createIcons();
+    safeIcons();
 }
 
 function closeSleepTimer() {
@@ -999,7 +1000,7 @@ function openPlaybackSpeed() {
         '</div>' +
     '</div>';
     document.body.appendChild(popup);
-    lucide.createIcons();
+    safeIcons();
 }
 
 function setPlaybackSpeed(speed) {
@@ -1087,7 +1088,7 @@ function openEqualizer() {
         '<button onclick="closeEqualizer()" class="w-full btn-chrome py-3.5 font-bold rounded-full">Selesai</button>' +
     '</div>';
     document.body.appendChild(popup);
-    lucide.createIcons();
+    safeIcons();
 }
 
 function closeEqualizer() {
@@ -1180,7 +1181,7 @@ function openShareCard() {
         '</div>' +
     '</div>';
     document.body.appendChild(popup);
-    lucide.createIcons();
+    safeIcons();
 }
 
 function copyShareLink() {
@@ -1322,7 +1323,7 @@ function openQueue(){
         '<div class="overflow-y-auto hide-scrollbar space-y-1 flex-1">'+listHtml+'</div>'+
     '</div>';
     document.body.appendChild(popup);
-    lucide.createIcons();
+    safeIcons();
 }
 function closeQueue(){var p=gid('queue-popup');if(p)p.remove();}
 function playQueueIndex(i){

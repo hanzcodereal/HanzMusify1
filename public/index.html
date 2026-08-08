@@ -353,6 +353,19 @@
         <div class="splash-sub">Menyiapkan musikmu</div>
         <div class="splash-bar"><i></i></div>
     </div>
+    <script>
+    (function () {
+        setTimeout(function () {
+            var sp = document.getElementById('splash-screen');
+            if (sp && !sp.classList.contains('hide')) {
+                sp.classList.add('hide');
+                setTimeout(function () {
+                    if (sp && sp.parentNode) sp.parentNode.removeChild(sp);
+                }, 350);
+            }
+        }, 6000);
+    })();
+    </script>
 
     <div class="flex-1 overflow-y-auto overflow-x-hidden pb-[140px] hide-scrollbar" id="main-area">
         <div id="view-home"></div>

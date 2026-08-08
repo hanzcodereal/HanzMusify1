@@ -79,7 +79,7 @@ var Home = {
             <div id="home-category-view" style="display:none;"></div>
         </div>`;
 
-        lucide.createIcons();
+        safeIcons();
 
         if (Home.activeCategory && Home.activeCategory !== 'Semua') {
             Home.displayCategoryView();
@@ -156,7 +156,7 @@ var Home = {
                 <div class="w-10 h-10 border-3 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
                 <p class="text-xs text-[#a0a5b0] animate-pulse">Memuat musik ${es(catName)}...</p>
             </div>`;
-            lucide.createIcons();
+            safeIcons();
         }
 
         var query = catName + ' Music';
@@ -293,7 +293,7 @@ var Home = {
             </div>` : ''}
         </div>`;
 
-        lucide.createIcons();
+        safeIcons();
     },
 
     showSkeleton() {
@@ -441,7 +441,7 @@ var Home = {
                 a.parentElement.style.display = 'none';
             }
         }
-        lucide.createIcons();
+        safeIcons();
     },
 
     renderActive() {
@@ -489,7 +489,7 @@ var Home = {
                 }
             });
         }
-        lucide.createIcons();
+        safeIcons();
     },
 
     renderActiveCategory() {
@@ -534,7 +534,7 @@ var Home = {
                 iconWrap.innerHTML = playIconHtml;
             }
         });
-        lucide.createIcons();
+        safeIcons();
     },
 
     refresh() {

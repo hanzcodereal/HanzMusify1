@@ -200,7 +200,7 @@ var FullPlayer={
                 </div>
             </div>
         </div>`;
-        lucide.createIcons();
+        safeIcons();
     },
     currentViewMode: 'cover',
     switchView(mode) {
@@ -331,7 +331,7 @@ var FullPlayer={
         </div>`;
 
         document.body.appendChild(sheet);
-        lucide.createIcons();
+        safeIcons();
     },
     applyColors(colors) {
         if (typeof S !== 'undefined') {
