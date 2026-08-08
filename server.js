@@ -1,7 +1,5 @@
 const express = require('express');
 const path = require('path');
-const https = require('https');
-const http = require('http');
 const fs = require('fs');
 
 const app = express();
@@ -21,54 +19,15 @@ app.use((req, res, next) => {
 
 app.all('/api/search', require('./api/search.js'));
 app.all('/api/lyrics', require('./api/lyrics.js'));
+app.all('/api/lyrics1', require('./api/lyrics1.js'));
+app.all('/api/lyrics2', require('./api/lyrics2.js'));
+app.all('/api/transcribe', require('./api/transcribe.js'));
+app.all('/api/translate', require('./api/translate.js'));
 app.all('/api/artist', require('./api/artist.js'));
 app.all('/api/album', require('./api/album.js'));
 app.all('/api/suggest', require('./api/suggest.js'));
 app.all('/api/ytplay', require('./api/ytplay.js'));
-
-app.get('/api/proxy-audio', (req, res) => {
-    const targetUrl = req.query.url;
-    if (!targetUrl) return res.status(400).send('Missing url parameter');
-    
-    let parsed;
-    try {
-        parsed = new URL(targetUrl);
-    } catch (e) {
-        return res.status(400).send('Invalid url parameter');
-    }
-
-    const options = {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/149.0.0.0 Safari/537.36'
-        }
-    };
-    if (req.headers.range) {
-        options.headers['Range'] = req.headers.range;
-    }
-
-    const client = parsed.protocol === 'https:' ? https : http;
-    const proxyReq = client.get(targetUrl, options, (proxyRes) => {
-        if (proxyRes.statusCode >= 300 && proxyRes.statusCode < 400 && proxyRes.headers.location) {
-            req.query.url = proxyRes.headers.location;
-            return app._router.handle(req, res);
-        }
-
-        res.status(proxyRes.statusCode);
-        const passthrough = ['content-type', 'content-length', 'accept-ranges', 'content-range'];
-        passthrough.forEach(h => {
-            if (proxyRes.headers[h]) res.setHeader(h, proxyRes.headers[h]);
-        });
-        if (!res.getHeader('accept-ranges')) res.setHeader('Accept-Ranges', 'bytes');
-        
-        proxyRes.pipe(res);
-    });
-    
-    proxyReq.on('error', (err) => {
-        if (!res.headersSent) {
-            res.status(500).send('Proxy error: ' + err.message);
-        }
-    });
-});
+app.all('/api/proxy-audio', require('./api/proxy-audio.js'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
