@@ -177,10 +177,10 @@ const handler = async (req, res) => {
     try {
         if (lines && Array.isArray(lines)) {
             const translatedLines = await translateLines(lines, targetLang);
-            return res.status(200).json({ status: true, result: { lines: translatedLines, creator: 'Hanz' } });
+            return res.status(200).json({ status: true, result: { lines: translatedLines, creator: 'Nanzz' } });
         } else if (text) {
             const translatedText = await translateText(text, targetLang);
-            return res.status(200).json({ status: true, result: { original: text, translated: translatedText, targetLang, creator: 'Hanz' } });
+            return res.status(200).json({ status: true, result: { original: text, translated: translatedText, targetLang, creator: 'Nanzz' } });
         }
     } catch(e) {
         return res.status(500).json({ status: false, message: 'Gagal menerjemahkan: ' + e.message });

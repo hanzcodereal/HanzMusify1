@@ -3,7 +3,7 @@ const https = require('https');
 module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') { res.status(200).end(); return; }
     if (req.method !== 'GET') { res.status(405).json({ status: false, message: 'Method not allowed' }); return; }
-    const query = (req.query.q || req.query.query || '').trim();
+    const query = (req.query.q || '').trim();
     if (!query) { res.status(400).json({ status: false, message: 'Parameter q wajib diisi' }); return; }
 
     try {

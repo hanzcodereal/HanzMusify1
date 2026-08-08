@@ -1,9 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto');
 
-const ytCache = new Map();
-const CACHE_TTL = 90 * 60 * 1000;
-
 async function getDownload(url) {
   const idMatch = [
     /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
@@ -13,12 +10,6 @@ async function getDownload(url) {
   if (!idMatch) {
     console.error("Invalid URL or video ID:", url);
     return null;
-  }
-
-  const cached = ytCache.get(idMatch);
-  if (cached && cached.expireAt > Date.now()) {
-    console.log(`[EXTRACT] Cache hit for video ID: ${idMatch}`);
-    return cached.data;
   }
 
   const fullUrl = "https://www.youtube.com/watch?v=" + idMatch;
@@ -61,12 +52,10 @@ async function getDownload(url) {
 
         const audioUrl = downloadRes.data?.data?.downloadUrl || downloadRes.data?.downloadUrl;
         if (audioUrl) {
-          const result = {
+          return {
             duration: `${Math.floor(decrypted.duration / 60)}:${(decrypted.duration % 60).toString().padStart(2, "0")}`,
             audio: audioUrl
           };
-          ytCache.set(idMatch, { data: result, expireAt: Date.now() + CACHE_TTL });
-          return result;
         }
       } catch (err) {
         console.error(`Extraction attempt ${attempt} on ${cdn} failed:`, err.message);
@@ -78,6 +67,10 @@ async function getDownload(url) {
 }
 
 module.exports = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     if (req.method === 'OPTIONS') { res.status(200).end(); return; }
     if (req.method !== 'POST') { res.status(405).json({ status: false, message: 'Method not allowed' }); return; }
 

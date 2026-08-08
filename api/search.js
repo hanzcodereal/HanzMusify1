@@ -53,15 +53,10 @@ async function fetchYoutube(query, type) {
 }
 
 module.exports = async (req, res) => {
-    if (req.method === 'OPTIONS') {
-        if (res.status) return res.status(200).send('OK');
-        return;
-    }
-
     const query = String(req.query.query || '').trim();
-    const type = String(req.query.type || 'all').trim();
+    const type = String(req.query.type || 'all').trim(); // all, songs, playlists
 
-    if (!query) return res.status(400).json({ status: false, creator: 'Hanz', message: 'Parameter query diperlukan' });
+    if (!query) return res.status(400).json({ status: false, creator: 'Nanzz', message: 'Parameter query diperlukan' });
 
     let urlVid = '';
     if (query.includes('youtube.com/') || query.includes('youtu.be/')) {
@@ -92,7 +87,7 @@ module.exports = async (req, res) => {
 
                 return res.json({
                     status: true,
-                    creator: 'Hanz',
+                    creator: 'Nanzz',
                     result: {
                         query,
                         totalSongs: 1,
@@ -246,11 +241,11 @@ module.exports = async (req, res) => {
 
         return res.json({
             status: true,
-            creator: 'Hanz',
+            creator: 'Nanzz',
             result: { query, totalSongs: songs.length, songs, albums, playlists, artists }
         });
 
     } catch (err) {
-        return res.status(500).json({ status: false, creator: 'Hanz', message: err.message });
+        return res.status(500).json({ status: false, creator: 'Nanzz', message: err.message });
     }
 };

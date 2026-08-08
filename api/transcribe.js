@@ -242,17 +242,17 @@ const handler = async (req, res) => {
     if (req.method === 'OPTIONS') { return res.status(200).end(); }
 
     let url = String(req.query?.url || req.query?.id || req.body?.url || req.body?.id || '').trim();
-    if (!url) return res.status(400).json({ creator: 'Hanz', status: false, message: 'Parameter url atau id diperlukan' });
+    if (!url) return res.status(400).json({ creator: 'Nanzz', status: false, message: 'Parameter url atau id diperlukan' });
 
     try {
         const result = await getTranscribe(url);
         return res.json({
-            creator: 'Hanz',
+            creator: 'Nanzz',
             status: true,
             result
         });
     } catch (err) {
-        return res.status(500).json({ creator: 'Hanz', status: false, message: err.message });
+        return res.status(500).json({ creator: 'Nanzz', status: false, message: err.message });
     }
 };
 
