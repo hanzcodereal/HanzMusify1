@@ -16,7 +16,7 @@ var Album = {
                 </div>
             </div>
         </div>`;
-        safeIcons();
+        lucide.createIcons();
     },
     handleScroll() {
         const c = gid('album-content');
@@ -39,7 +39,7 @@ var Album = {
             <div class="w-10 h-10 border-3 border-[#cfd3d8] border-t-transparent rounded-full animate-spin"></div>
         </div>`;
         
-        fetch(API.album+'?id=' + id)
+        fetch('/api/album?id=' + id)
         .then(res => res.json())
         .then(data => {
             if(!data.status || !data.result) {
@@ -151,7 +151,7 @@ var Album = {
 
             html += '</div>';
             gid('album-content').innerHTML = html;
-            safeIcons();
+            lucide.createIcons();
         })
         .catch(e => {
             gid('album-content').innerHTML = '<div class="p-6 text-center text-white/70 mt-20">Gagal: '+e.message+'</div>';
@@ -202,7 +202,7 @@ var Album = {
                 titleEl.className = (isCur ? 'text-white font-bold' : 'text-white/90 font-medium') + ' text-base truncate mb-0.5';
             }
         }
-        safeIcons();
+        lucide.createIcons();
     },
     close() {
         if(window.location.pathname.startsWith('/album/')) history.pushState({},'', '/');

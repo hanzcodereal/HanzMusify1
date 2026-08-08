@@ -1,4 +1,4 @@
-const API={search:'/api/search',artist:'/api/artist',album:'/api/album',suggest:'/api/suggest',lyrics:'/api/lyrics',ytplay:'/api/ytplay',proxyAudio:'/api/proxy-audio'};
+const API={search:'/api/search',artist:'/api/artist',suggest:'/api/suggest',lyrics:'/api/lyrics',ytplay:'/api/ytplay'};
 const FI='data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2523374151%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20width%3D%22100%2525%22%20height%3D%22100%2525%22%20fill%3D%22%252318181b%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%252327272a%22%20stroke%3D%22none%22%2F%3E%3Cpath%20d%3D%22M9%2017V5l10-2v12%22%20stroke%3D%22%252352525b%22%20stroke-width%3D%221%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2217%22%20r%3D%223%22%20fill%3D%22%252352525b%22%20stroke%3D%22none%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2215%22%20r%3D%223%22%20fill%3D%22%252352525b%22%20stroke%3D%22none%22%2F%3E%3C%2Fsvg%3E';
 
 function toHDCover(url, videoId) {
@@ -39,7 +39,6 @@ function es(t){if(!t)return'';const d=document.createElement('div');d.textConten
 function esJs(t){if(!t)return'';return String(t).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\n/g,' ').replace(/\r/g,'');}
 function cn(t){if(!t)return'Unknown';return t.replace(/[^\x20-\x7E\xA0-\xFF\u0100-\uFFFF]/g,'').replace(/\s*-\s*Topic$/i,'').trim()||'Unknown';}
 function gid(id){return document.getElementById(id);}
-function safeIcons(){try{if(typeof lucide!=='undefined'&&lucide.createIcons)lucide.createIcons();}catch(e){}}
 
 function updateOG(title,image){
     var t=document.querySelector('meta[property="og:title"]');if(!t){t=document.createElement('meta');t.setAttribute('property','og:title');document.head.appendChild(t);}t.setAttribute('content',title+' | HanzMusify');
@@ -177,7 +176,7 @@ function UB(){
             miniBeats.querySelectorAll('.mini-beat-bar').forEach(function(b){ b.style.animationPlayState = 'paused'; });
         }
     }
-    safeIcons();
+    lucide.createIcons();
 }
 
 function setMetaTag(name, content, isProperty) {
@@ -280,7 +279,6 @@ function loadTrack(track,resumeAt){
     if(!track)return;
     ST();
     try{AU.pause();}catch(e){}
-    addToHistory(track);
     fetchAudioAndPlay(track,resumeAt);
 }
 
@@ -294,7 +292,7 @@ async function fetchAudioAndPlay(track,resumeAt){
         if(d&&d.status&&d.result&&d.result.download&&d.result.download.audio){
             var audioUrl = d.result.download.audio;
             if (audioCtx) {
-                AU.src = API.proxyAudio+'?url=' + encodeURIComponent(audioUrl);
+                AU.src = '/api/proxy-audio?url=' + encodeURIComponent(audioUrl);
             } else {
                 AU.removeAttribute('crossorigin');
                 AU.src = audioUrl;
@@ -410,6 +408,7 @@ function resetLyricsUI(vid){
 }
 
 var lastUserLyricScroll = 0;
+var lastUserInlineLyricScroll = 0;
 
 function setupLyricScrollListener() {
     var container = gid('lyrics-scroll-container');
@@ -422,6 +421,18 @@ function setupLyricScrollListener() {
         container.addEventListener('touchmove', onUserTouch, { passive: true });
         container.addEventListener('wheel', onUserTouch, { passive: true });
         container.addEventListener('mousedown', onUserTouch, { passive: true });
+    }
+
+    var inlineContainer = gid('full-inline-lyrics-scroll');
+    if (inlineContainer && !inlineContainer._hasLyricScrollListener) {
+        inlineContainer._hasLyricScrollListener = true;
+        var onUserInlineTouch = function() {
+            lastUserInlineLyricScroll = Date.now();
+        };
+        inlineContainer.addEventListener('touchstart', onUserInlineTouch, { passive: true });
+        inlineContainer.addEventListener('touchmove', onUserInlineTouch, { passive: true });
+        inlineContainer.addEventListener('wheel', onUserInlineTouch, { passive: true });
+        inlineContainer.addEventListener('mousedown', onUserInlineTouch, { passive: true });
     }
 }
 
@@ -444,35 +455,55 @@ function smoothScrollLyricContainer(container, targetTop, duration) {
 
 async function FL(vid){
     var l=gid('lyrics-loading'),c=gid('lyrics-content'),e=gid('lyrics-empty');
+    var il=gid('full-inline-lyrics-loading'),ic=gid('full-inline-lyrics-content'),ie=gid('full-inline-lyrics-empty');
     if(l) l.classList.remove('hidden');
+    if(il) il.classList.remove('hidden');
     if(c) { c.classList.add('hidden'); c.innerHTML=''; delete c._lyricLines; delete c._activeLine; }
+    if(ic) { ic.classList.add('hidden'); ic.innerHTML=''; delete ic._lyricLines; delete ic._activeLine; }
     if(e) e.classList.add('hidden');
+    if(ie) ie.classList.add('hidden');
     S.ld={type:'none',lines:[]};S.cli=-1;S.lyricOffset=0;updateSyncBadge();
     try{
         var r=await fetch(API.lyrics+'?id='+vid+'&t='+Date.now());
         var d=await r.json();
         if(d.status&&d.result.lyrics&&d.result.lyrics.lines.length>0){
-            S.ld=d.result.lyrics;var html='';
+            S.ld=d.result.lyrics;var html='';var inlineHtml='';
             var isPlain = S.ld.type === 'plain';
             S.ld.lines.forEach(function(li,i){
                 if (isPlain) {
                     html+='<p class="lyric-line text-left py-2.5 text-white/80 font-bold">'+es(li.text)+'</p>';
+                    inlineHtml+='<p class="inline-lyric-line text-left py-1.5 text-white/80 font-bold">'+es(li.text)+'</p>';
                 } else {
                     html+='<p class="lyric-line text-left py-2.5 cursor-pointer font-bold" data-time="'+li.time+'" onclick="SLT('+li.time+')">'+es(li.text)+'</p>';
+                    inlineHtml+='<p class="inline-lyric-line text-left py-1.5 cursor-pointer font-bold" data-time="'+li.time+'" onclick="SLT('+li.time+')">'+es(li.text)+'</p>';
                 }
             });
             html+='<p class="text-left text-[#4b5563] text-sm mt-12 mb-4 opacity-50 tracking-widest">end</p>';
+            inlineHtml+='<p class="text-left text-[#4b5563] text-xs mt-8 mb-2 opacity-50 tracking-widest">end</p>';
             if(c) { 
                  c.innerHTML='<div class="pt-[35vh] pb-[50vh] space-y-2 sm:space-y-3">'+html+'</div>';
                  c.classList.remove('hidden');
                  delete c._lyricLines;
                  delete c._activeLine;
              }
+            if(ic) {
+                 ic.innerHTML='<div class="pt-[40%] pb-[50%] space-y-1">'+inlineHtml+'</div>';
+                 ic.classList.remove('hidden');
+                 delete ic._lyricLines;
+                 delete ic._activeLine;
+             }
             if(l) l.classList.add('hidden');
+            if(il) il.classList.add('hidden');
             S.cli = -2;
             if (!isPlain) ULH(S.pt, true);
-        }else{if(l)l.classList.add('hidden');if(e)e.classList.remove('hidden');}
-    }catch(er){if(l)l.classList.add('hidden');if(e)e.classList.remove('hidden');}
+        }else{
+            if(l)l.classList.add('hidden');if(e)e.classList.remove('hidden');
+            if(il)il.classList.add('hidden');if(ie)ie.classList.remove('hidden');
+        }
+    }catch(er){
+        if(l)l.classList.add('hidden');if(e)e.classList.remove('hidden');
+        if(il)il.classList.add('hidden');if(ie)ie.classList.remove('hidden');
+    }
 }
 
 function ULH(ct, forceScroll){
@@ -491,33 +522,62 @@ function ULH(ct, forceScroll){
     S.cli = ei;
     var container = gid('lyrics-scroll-container');
     var content = gid('lyrics-content');
-    if(!content) return;
-    if(!content._lyricLines || content._lyricLines.length === 0){
-        content._lyricLines = content.querySelectorAll('.lyric-line');
+    if(content){
+        if(!content._lyricLines || content._lyricLines.length === 0){
+            content._lyricLines = content.querySelectorAll('.lyric-line');
+        }
+        if(content._lyricLines && content._lyricLines.length > 0) {
+            content._lyricLines.forEach(function(line, idx){
+                if(idx === ei) {
+                    line.classList.add('active-lyric');
+                    line.classList.remove('past-lyric');
+                } else if (idx < ei) {
+                    line.classList.remove('active-lyric');
+                    line.classList.add('past-lyric');
+                } else {
+                    line.classList.remove('active-lyric');
+                    line.classList.remove('past-lyric');
+                }
+            });
+        }
+        if(ei >= 0 && content._lyricLines[ei] && container && (forceScroll || Date.now() - lastUserLyricScroll > 2500)) {
+            var targetLine = content._lyricLines[ei];
+            var targetTop = targetLine.offsetTop;
+            var targetHeight = targetLine.offsetHeight;
+            var containerHeight = container.clientHeight;
+            var offset = Math.max(0, Math.floor(targetTop - (containerHeight / 2) + (targetHeight / 2)));
+            smoothScrollLyricContainer(container, offset, forceScroll ? 0 : 300);
+        }
     }
-    if(content._lyricLines && content._lyricLines.length > 0) {
-        content._lyricLines.forEach(function(line, idx){
-            if(idx === ei) {
-                line.classList.add('active-lyric');
-                line.classList.remove('past-lyric');
-            } else if (idx < ei) {
-                line.classList.remove('active-lyric');
-                line.classList.add('past-lyric');
-            } else {
-                line.classList.remove('active-lyric');
-                line.classList.remove('past-lyric');
-            }
-        });
-    }
-    if(ei < 0) return;
-    var targetLine = content._lyricLines[ei];
-    if(!targetLine) return;
-    if(container && (forceScroll || Date.now() - lastUserLyricScroll > 2500)) {
-        var targetTop = targetLine.offsetTop;
-        var targetHeight = targetLine.offsetHeight;
-        var containerHeight = container.clientHeight;
-        var offset = Math.max(0, Math.floor(targetTop - (containerHeight / 2) + (targetHeight / 2)));
-        smoothScrollLyricContainer(container, offset, forceScroll ? 0 : 300);
+
+    var inlineContainer = gid('full-inline-lyrics-scroll');
+    var inlineContent = gid('full-inline-lyrics-content');
+    if(inlineContent){
+        if(!inlineContent._lyricLines || inlineContent._lyricLines.length === 0){
+            inlineContent._lyricLines = inlineContent.querySelectorAll('.inline-lyric-line');
+        }
+        if(inlineContent._lyricLines && inlineContent._lyricLines.length > 0) {
+            inlineContent._lyricLines.forEach(function(line, idx){
+                if(idx === ei) {
+                    line.classList.add('active-lyric');
+                    line.classList.remove('past-lyric');
+                } else if (idx < ei) {
+                    line.classList.remove('active-lyric');
+                    line.classList.add('past-lyric');
+                } else {
+                    line.classList.remove('active-lyric');
+                    line.classList.remove('past-lyric');
+                }
+            });
+        }
+        if(ei >= 0 && inlineContent._lyricLines[ei] && inlineContainer && (forceScroll || Date.now() - lastUserInlineLyricScroll > 2500)) {
+            var iTargetLine = inlineContent._lyricLines[ei];
+            var iTargetTop = iTargetLine.offsetTop;
+            var iTargetHeight = iTargetLine.offsetHeight;
+            var iContainerHeight = inlineContainer.clientHeight;
+            var iOffset = Math.max(0, Math.floor(iTargetTop - (iContainerHeight / 2) + (iTargetHeight / 2)));
+            smoothScrollLyricContainer(inlineContainer, iOffset, forceScroll ? 0 : 300);
+        }
     }
 }
 
@@ -547,12 +607,15 @@ function updateSyncBadge(){
     var badgeText = o===0 ? '' : (o>0?'+':'')+o;
     var dBadge = gid('lyric-sync-badge-desktop');
     var mBadge = gid('lyric-sync-badge-mobile');
+    var iBadge = gid('full-inline-sync-badge');
     if(o===0){
         if(dBadge) dBadge.classList.add('hidden');
         if(mBadge) mBadge.classList.add('hidden');
+        if(iBadge) iBadge.classList.add('hidden');
     }else{
         if(dBadge){ dBadge.classList.remove('hidden'); dBadge.innerText=badgeText; }
         if(mBadge){ mBadge.classList.remove('hidden'); mBadge.innerText=badgeText; }
+        if(iBadge){ iBadge.classList.remove('hidden'); iBadge.innerText=badgeText; }
     }
 }
 
@@ -602,46 +665,6 @@ function toggleLyrics(){
             ULH(S.pt, true);
         }
     }
-}
-
-var HISTORY_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
-function getHistorySongs(){
-    var list;
-    try{ list = JSON.parse(localStorage.getItem('hanz_history') || '[]'); }catch(e){ return []; }
-    var now = Date.now();
-    var fresh = list.filter(function(s){ return s.playedAt && (now - s.playedAt) < HISTORY_MAX_AGE_MS; });
-    if(fresh.length !== list.length){
-        try{ localStorage.setItem('hanz_history', JSON.stringify(fresh)); }catch(e){}
-    }
-    return fresh;
-}
-function addToHistory(track){
-    if(!track || !track.videoId) return;
-    var list = getHistorySongs();
-    var index = list.findIndex(function(s){ return s.videoId === track.videoId; });
-    if(index >= 0) list.splice(index, 1);
-    list.unshift({
-        id: track.id || track.videoId,
-        videoId: track.videoId,
-        title: track.title,
-        artist: track.artist,
-        cover: track.cover,
-        artistId: track.artistId || '',
-        ytUrl: track.ytUrl || ('https://youtube.com/watch?v=' + track.videoId),
-        playedAt: Date.now()
-    });
-    if(list.length > 100) list = list.slice(0, 100);
-    try{ localStorage.setItem('hanz_history', JSON.stringify(list)); }catch(e){}
-    if(S.at === 'library' && typeof Library !== 'undefined' && Library.activeTab === 'history') Library.render();
-}
-function removeFromHistory(videoId){
-    var list = getHistorySongs().filter(function(s){ return s.videoId !== videoId; });
-    try{ localStorage.setItem('hanz_history', JSON.stringify(list)); }catch(e){}
-}
-function clearHistory(){
-    try{ localStorage.removeItem('hanz_history'); }catch(e){}
-    if(typeof showToast === 'function') showToast('Riwayat dihapus');
-    if(S.at === 'library' && typeof Library !== 'undefined') Library.render();
 }
 
 function getLikedSongs(){
@@ -746,7 +769,7 @@ function updateLikeButtons(){
             fullBtn.classList.add('bg-black/50', 'border-white/20');
         }
     }
-    safeIcons();
+    if(typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
 }
 
 function getUserPlaylists(){
@@ -959,7 +982,7 @@ function openSleepTimer() {
         contentHtml +
     '</div>';
     document.body.appendChild(popup);
-    safeIcons();
+    lucide.createIcons();
 }
 
 function closeSleepTimer() {
@@ -1000,7 +1023,7 @@ function openPlaybackSpeed() {
         '</div>' +
     '</div>';
     document.body.appendChild(popup);
-    safeIcons();
+    lucide.createIcons();
 }
 
 function setPlaybackSpeed(speed) {
@@ -1088,7 +1111,7 @@ function openEqualizer() {
         '<button onclick="closeEqualizer()" class="w-full btn-chrome py-3.5 font-bold rounded-full">Selesai</button>' +
     '</div>';
     document.body.appendChild(popup);
-    safeIcons();
+    lucide.createIcons();
 }
 
 function closeEqualizer() {
@@ -1181,7 +1204,7 @@ function openShareCard() {
         '</div>' +
     '</div>';
     document.body.appendChild(popup);
-    safeIcons();
+    lucide.createIcons();
 }
 
 function copyShareLink() {
@@ -1323,7 +1346,7 @@ function openQueue(){
         '<div class="overflow-y-auto hide-scrollbar space-y-1 flex-1">'+listHtml+'</div>'+
     '</div>';
     document.body.appendChild(popup);
-    safeIcons();
+    lucide.createIcons();
 }
 function closeQueue(){var p=gid('queue-popup');if(p)p.remove();}
 function playQueueIndex(i){
@@ -1346,7 +1369,7 @@ function downloadCurrentSong(){
             if(d&&d.status&&d.result&&d.result.download&&d.result.download.audio){
                 var audioUrl=d.result.download.audio;
                 var a=document.createElement('a');
-                a.href=API.proxyAudio+'?url='+encodeURIComponent(audioUrl);
+                a.href='/api/proxy-audio?url='+encodeURIComponent(audioUrl);
                 a.download=(S.ct.title||'lagu').replace(/[^a-zA-Z0-9]/g,'_')+'.mp3';
                 document.body.appendChild(a);
                 a.click();

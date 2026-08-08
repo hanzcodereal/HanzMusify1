@@ -31,7 +31,7 @@ var MP={
                 </div>
             </div>
         </div>`;
-        safeIcons();
+        lucide.createIcons();
     },
     show(){
         if (!S || !S.ct || (!S.ct.id && !S.ct.videoId && !S.ct.title)) {

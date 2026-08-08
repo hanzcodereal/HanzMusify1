@@ -9,7 +9,7 @@ var Search={
         </div>
         <div class="px-4 mt-2" id="search-results"></div>
         <div id="search-recs" class="px-4 mt-2 space-y-6 pb-8"></div>`;
-        safeIcons();Search.events();
+        lucide.createIcons();Search.events();
     },
     query(q){
         App.switch('search');
@@ -21,7 +21,7 @@ var Search={
         }
     },
     onShow(){if(!S.sq){Search.renderRecs();}},
-    REC_ROWS:[{key:'rec0',label:'Rilis Anyar',q:'baru rilis'},{key:'rec1',label:'Barat Top',q:'barat Top'},{key:'rec2',label:'Rap',q:'Rapp Top'}],
+    REC_ROWS:[{key:'rec0',label:'🆕 Rilis Anyar',q:'baru rilis'},{key:'rec1',label:'🌎 Barat Top',q:'barat Top'},{key:'rec2',label:'🎤 Rapp',q:'Rapp Top'}],
     renderRecs(){
         var rc=gid('search-recs');if(!rc)return;
         if(S.rec0&&S.rec1&&S.rec2){Search.showRecs();return;}
@@ -72,7 +72,7 @@ var Search={
             }).join('');
             return '<div class="animate-card-up"><h2 class="text-base font-bold mb-3 flex items-center gap-2"><span class="w-1.5 h-4 bg-white/90 rounded-full inline-block"></span>'+row.label+'</h2><div class="flex gap-3 overflow-x-auto hide-scrollbar pb-1">'+cardsHtml+'</div></div>';
         }).join('');
-        safeIcons();
+        lucide.createIcons();
     },
     renderActive(){
         var c = gid('search-results');
@@ -159,7 +159,7 @@ var Search={
                 });
             });
         }
-        safeIcons();
+        lucide.createIcons();
     },
     events(){
         var sf=gid('search-form'),si=gid('search-input');if(!sf||!si)return;
@@ -176,7 +176,7 @@ var Search={
                 
                 var pl = d.status&&d.result.playlists?d.result.playlists:[];
                 var al = d.status&&d.result.albums?d.result.albums:[];
-                S.pr = [].concat(pl).concat(al);
+                S.pr = [].concat(pl).concat(al); // combine playlists & albums
                 S.art = d.status&&d.result.artists?d.result.artists:[];
 
                 gid('filter-tabs').classList.remove('hidden');
@@ -194,7 +194,7 @@ var Search={
                         return'<div onclick="selectSuggestion(\''+es(sg).replace(/'/g,"\\'")+'\')" class="px-4 py-3 hover:bg-white/10 cursor-pointer text-sm animate-card-left flex items-center gap-3 transition-colors" style="animation-delay:'+Math.min(i*25, 250)+'ms"><i data-lucide="search" class="w-3.5 h-3.5 text-white/70"></i><span>'+es(sg)+'</span></div>';
                     }).join('');
                     gid('suggestions').classList.remove('hidden');
-                    safeIcons();
+                    lucide.createIcons();
                 }else{gid('suggestions').classList.add('hidden');}
             });
         });
@@ -247,17 +247,17 @@ var Search={
                     '<div class="search-song-btn">'+btnHtml+'</div>'+
                 '</div>';
             }).join('');
-            safeIcons();
+            lucide.createIcons();
         } else if (S.filter === 'artists') {
             c.innerHTML='<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-8">'+S.sr.map(function(p, i){
                 return '<div onclick="Artist.open(\''+p.id+'\', \''+esJs(p.name||p.title)+'\')" class="cursor-pointer active:scale-95 animate-card-up" style="animation-delay:'+Math.min(i*40, 500)+'ms"><div class="w-full aspect-square mb-2 relative rounded-full overflow-hidden glass-edge "><img src="'+(p.cover||FI)+'" class="w-full h-full object-cover" onerror="this.src=\''+FI+'\'" /></div><h3 class="font-semibold text-center text-sm truncate">'+es(p.name||p.title)+'</h3><p class="text-white/70 text-center text-xs truncate mt-0.5">'+es(p.subtitle||p.artist)+'</p></div>';
             }).join('')+'</div>';
-            safeIcons();
+            lucide.createIcons();
         } else {
             c.innerHTML='<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-8">'+S.sr.map(function(p, i){
                 return '<div onclick="Album.open(\''+p.id+'\', \''+(p.cover||FI)+'\')" class="cursor-pointer active:scale-95 animate-card-up" style="animation-delay:'+Math.min(i*40, 500)+'ms"><div class="w-full aspect-square mb-2 relative rounded-xl overflow-hidden glass-edge "><img src="'+(p.cover||FI)+'" class="w-full h-full object-cover" onerror="this.src=\''+FI+'\'" /></div><h3 class="font-semibold text-sm truncate">'+es(p.title)+'</h3><p class="text-white/70 text-xs truncate mt-0.5">'+es(p.artist)+'</p></div>';
             }).join('')+'</div>';
-            safeIcons();
+            lucide.createIcons();
         }
     },
     apply(){
