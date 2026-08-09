@@ -1,4 +1,5 @@
 const https = require('https');
+const { translateLines } = require('./translate.js');
 
 const API_KEY = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
 
@@ -61,6 +62,15 @@ module.exports = async (req, res) => {
                 if(b.syncedLyrics)lyricsData={type:'synced',lines:parseSyncedLyrics(b.syncedLyrics)};
                 else if(b.plainLyrics)lyricsData={type:'plain',lines:parsePlainLyrics(b.plainLyrics)};
             }}catch(e){}}
+
+        // Translate lirik ke Bahasa Indonesia (dengan timeout race supaya tidak menggantung request)
+        if (lyricsData.lines && lyricsData.lines.length > 0) {
+            try {
+                const transPromise = translateLines(lyricsData.lines);
+                const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(lyricsData.lines), 3500));
+                lyricsData.lines = await Promise.race([transPromise, timeoutPromise]);
+            } catch(e) {}
+        }
 
         const result = { status: true, input: { id: videoId }, result: { videoId, title, artist, album, lyrics: lyricsData, creator: 'Nanzz' } };
         removeKeysRecursive(result, ['creator']);
