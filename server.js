@@ -21,14 +21,11 @@ app.use((req, res, next) => {
 
 app.all('/api/search', require('./api/search.js'));
 app.all('/api/lyrics', require('./api/lyrics.js'));
-app.all('/api/lyrics1', require('./api/lyrics1.js'));
-app.all('/api/lyrics2', require('./api/lyrics2.js'));
 app.all('/api/artist', require('./api/artist.js'));
 app.all('/api/album', require('./api/album.js'));
 app.all('/api/suggest', require('./api/suggest.js'));
 app.all('/api/ytplay', require('./api/ytplay.js'));
 app.all('/api/translate', require('./api/translate.js'));
-app.all('/api/transcribe', require('./api/transcribe.js'));
 
 app.get('/api/proxy-audio', (req, res) => {
     const targetUrl = req.query.url;
