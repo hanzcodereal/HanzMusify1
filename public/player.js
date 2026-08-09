@@ -470,12 +470,16 @@ async function FL(vid){
             S.ld=d.result.lyrics;var html='';var inlineHtml='';
             var isPlain = S.ld.type === 'plain';
             S.ld.lines.forEach(function(li,i){
+                var transHtml = '';
+                if (li.translation && li.translation.trim()) {
+                    transHtml = '<span class="lyric-translation">(' + es(li.translation) + ')</span>';
+                }
                 if (isPlain) {
-                    html+='<p class="lyric-line text-left py-2.5 text-white/80 font-bold">'+es(li.text)+'</p>';
-                    inlineHtml+='<p class="inline-lyric-line text-left py-1.5 text-white/80 font-bold">'+es(li.text)+'</p>';
+                    html+='<p class="lyric-line text-left py-2.5 text-white/80 font-bold">'+es(li.text)+transHtml+'</p>';
+                    inlineHtml+='<p class="inline-lyric-line text-left py-1.5 text-white/80 font-bold">'+es(li.text)+transHtml+'</p>';
                 } else {
-                    html+='<p class="lyric-line text-left py-2.5 cursor-pointer font-bold" data-time="'+li.time+'" onclick="SLT('+li.time+')">'+es(li.text)+'</p>';
-                    inlineHtml+='<p class="inline-lyric-line text-left py-1.5 cursor-pointer font-bold" data-time="'+li.time+'" onclick="SLT('+li.time+')">'+es(li.text)+'</p>';
+                    html+='<p class="lyric-line text-left py-2.5 cursor-pointer font-bold" data-time="'+li.time+'" onclick="SLT('+li.time+')">'+es(li.text)+transHtml+'</p>';
+                    inlineHtml+='<p class="inline-lyric-line text-left py-1.5 cursor-pointer font-bold" data-time="'+li.time+'" onclick="SLT('+li.time+')">'+es(li.text)+transHtml+'</p>';
                 }
             });
             html+='<p class="text-left text-[#4b5563] text-sm mt-12 mb-4 opacity-50 tracking-widest">end</p>';
