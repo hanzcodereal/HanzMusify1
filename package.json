@@ -1,7 +1,7 @@
 {
   "name": "hanzmusify",
   "private": true,
-  "version": "1.0.0",
+  "version": "4.0.0",
   "description": "HanzMusify - Web Music Player",
   "scripts": {
     "lint": "node --check public/app.js",
