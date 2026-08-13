@@ -48,6 +48,7 @@ function updateOG(title,image){
 
 var AU=gid('audio-player');
 if(!AU){AU=document.createElement('audio');AU.id='audio-player';AU.preload='auto';AU.style.display='none';document.body.appendChild(AU);}
+try{var storedVolume=localStorage.getItem('hanz_volume');if(storedVolume!==null){AU.volume=Math.max(0,Math.min(100,parseInt(storedVolume,10)))/100;}}catch(e){}
 AU.addEventListener('timeupdate',function(){if(!AU.paused){S.pt=AU.currentTime||0;S.pd=AU.duration||0;renderProgress();}});
 AU.addEventListener('play',function(){S.ip=true;S.il=false;UB();SP();try{AU.playbackRate=S.playbackRate||1.0;}catch(ex){}});
 AU.addEventListener('pause',function(){if(!AU.ended){S.ip=false;UB();ST();}});
@@ -279,6 +280,7 @@ function loadTrack(track,resumeAt){
     if(!track)return;
     ST();
     try{AU.pause();}catch(e){}
+    addToHistory(track);
     fetchAudioAndPlay(track,resumeAt);
 }
 
@@ -806,6 +808,62 @@ function getUserPlaylists(){
     }catch(e){return[];}
 }
 function saveUserPlaylists(pls){try{localStorage.setItem('hanz_playlists',JSON.stringify(pls));}catch(e){}}
+var HISTORY_MAX_DAYS=7;
+var HISTORY_MAX_ITEMS=100;
+function getPlayHistory(){
+    try{
+        var raw=JSON.parse(localStorage.getItem('hanz_history')||'[]');
+        var cutoff=Date.now()-(HISTORY_MAX_DAYS*24*60*60*1000);
+        var filtered=raw.filter(function(h){return h.playedAt>=cutoff;});
+        if(filtered.length!==raw.length){
+            localStorage.setItem('hanz_history',JSON.stringify(filtered));
+        }
+        return filtered;
+    }catch(e){return[];}
+}
+function addToHistory(track){
+    if(!track||!track.videoId)return;
+    try{
+        var history=getPlayHistory();
+        history=history.filter(function(h){return h.videoId!==track.videoId;});
+        history.unshift({
+            id:track.id||track.videoId,
+            videoId:track.videoId,
+            title:track.title,
+            artist:track.artist,
+            cover:track.cover,
+            artistId:track.artistId||'',
+            ytUrl:track.ytUrl||('https://youtube.com/watch?v='+track.videoId),
+            playedAt:Date.now()
+        });
+        if(history.length>HISTORY_MAX_ITEMS)history=history.slice(0,HISTORY_MAX_ITEMS);
+        localStorage.setItem('hanz_history',JSON.stringify(history));
+        if(S.at==='library'&&typeof Library!=='undefined'&&Library.activeTab==='history'){
+            Library.render();
+        }
+    }catch(e){}
+}
+function removeHistoryItem(index){
+    var history=getPlayHistory();
+    if(!history[index])return;
+    history.splice(index,1);
+    try{localStorage.setItem('hanz_history',JSON.stringify(history));}catch(e){}
+    if(typeof Library!=='undefined')Library.render();
+}
+function clearPlayHistory(){
+    try{localStorage.removeItem('hanz_history');}catch(e){}
+    if(typeof Library!=='undefined')Library.render();
+}
+function timeAgo(ts){
+    var diff=Math.max(0,Date.now()-ts);
+    var mins=Math.floor(diff/60000);
+    if(mins<1)return'Baru saja';
+    if(mins<60)return mins+' menit lalu';
+    var hours=Math.floor(mins/60);
+    if(hours<24)return hours+' jam lalu';
+    var days=Math.floor(hours/24);
+    return days+' hari lalu';
+}
 function createPlaylist(name,image){var pls=getUserPlaylists();var id='pl_'+Date.now();pls.push({id:id,name:name,image:image||'',songs:[]});saveUserPlaylists(pls);return id;}
 function updateUserPlaylist(id,name,image){var pls=getUserPlaylists();var pl=pls.find(function(p){return p.id===id;});if(!pl)return;if(name)pl.name=name;if(image)pl.image=image;saveUserPlaylists(pls);}
 function deleteUserPlaylist(id){var pls=getUserPlaylists().filter(function(p){return p.id!==id;});saveUserPlaylists(pls);}
@@ -1059,6 +1117,44 @@ function updateSpeedBadge() {
 function closePlaybackSpeed() {
     var p = gid('playback-speed-popup');
     if (p) p.remove();
+}
+
+function openVolumeControl() {
+    if (gid('volume-popup')) return;
+    var popup = document.createElement('div');
+    popup.id = 'volume-popup';
+    popup.className = 'fixed inset-0 z-[300] flex items-end justify-center bg-black/60';
+    popup.onclick = function(e) { if(e.target === popup) closeVolumeControl(); };
+    var vol = Math.round((AU.volume !== undefined ? AU.volume : 1) * 100);
+    popup.innerHTML = '<div class="w-full max-w-md rounded-t-3xl p-6 border-t border-white/10 glass-strong" style="animation:slideUp 0.3s ease-out forwards; background: var(--bg-color);">' +
+        '<div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>' +
+        '<div class="flex justify-between items-center mb-6">' +
+            '<div>' +
+                '<h3 class="font-black text-white text-lg">Volume</h3>' +
+                '<p class="text-[#6b7280] text-xs">Atur volume pemutaran lagu</p>' +
+            '</div>' +
+            '<button onclick="closeVolumeControl()" class="text-[#6b7280] hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>' +
+        '</div>' +
+        '<div class="flex items-center gap-3">' +
+            '<i data-lucide="volume-1" class="w-5 h-5 text-[#a0a5b0] shrink-0"></i>' +
+            '<input type="range" id="volume-slider" min="0" max="100" value="' + vol + '" oninput="setVolumeLevel(this.value)" class="flex-1 h-1.5 rounded-full accent-white cursor-pointer" />' +
+            '<i data-lucide="volume-2" class="w-5 h-5 text-[#a0a5b0] shrink-0"></i>' +
+        '</div>' +
+        '<p id="volume-value" class="text-center text-white font-bold text-sm mt-3">' + vol + '%</p>' +
+    '</div>';
+    document.body.appendChild(popup);
+    lucide.createIcons();
+}
+function closeVolumeControl() {
+    var p = gid('volume-popup');
+    if (p) p.remove();
+}
+function setVolumeLevel(v) {
+    var vol = Math.max(0, Math.min(100, parseInt(v, 10) || 0));
+    AU.volume = vol / 100;
+    try { localStorage.setItem('hanz_volume', vol); } catch(e) {}
+    var label = gid('volume-value');
+    if (label) label.innerText = vol + '%';
 }
 
 function openEqualizer() {

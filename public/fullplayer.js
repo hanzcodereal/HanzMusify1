@@ -242,7 +242,7 @@ var FullPlayer={
             if(typeof S!=='undefined'&&!S.lo&&typeof MP!=='undefined')MP.show();
         },350);
     },
-    openArtist(){if(S.ct&&S.ct.artistId){FullPlayer.close();setTimeout(function(){Artist.open(S.ct.artistId,S.ct.artist);},400);}},
+    openArtist(){if(S.ct&&S.ct.artistId){FullPlayer.close();setTimeout(function(){Artist.open(S.ct.artistId,S.ct.artist);},400);}else if(typeof showToast==='function'){showToast('Info artis tidak tersedia');}},
     openMoreSheet() {
         var existing = gid('full-more-sheet');
         if (existing) existing.remove();
@@ -296,6 +296,14 @@ var FullPlayer={
                 <button onclick="gid('full-more-sheet').remove();openShareCard();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
                     <i data-lucide="share-2" class="w-5 h-5 text-white"></i>
                     <span class="text-xs font-semibold text-white/90">Share</span>
+                </button>
+                <button onclick="gid('full-more-sheet').remove();openVolumeControl();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
+                    <i data-lucide="volume-2" class="w-5 h-5 text-white"></i>
+                    <span class="text-xs font-semibold text-white/90">Volume</span>
+                </button>
+                <button onclick="gid('full-more-sheet').remove();FullPlayer.openArtist();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
+                    <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                    <span class="text-xs font-semibold text-white/90">Lihat Artis</span>
                 </button>
             </div>
 

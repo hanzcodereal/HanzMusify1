@@ -73,7 +73,7 @@ var App={
             <div class="glass rounded-2xl p-5 max-w-sm mx-auto space-y-3 text-left mb-6">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wider mb-2">Aplikasi</h3>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Nama</span><span class="text-white font-medium text-sm">HanzMusify</span></div>
-                <div class="flex justify-between"><span class="text-white/70 text-sm">Versi</span><span class="text-white font-medium text-sm">v3.0.0</span></div>
+                <div class="flex justify-between"><span class="text-white/70 text-sm">Versi</span><span class="text-white font-medium text-sm">v4.0.0</span></div>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Framework</span><span class="text-white font-medium text-sm">HTML + Tailwind + JS</span></div>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Dirilis</span><span class="text-white font-medium text-sm">Juni 2026</span></div>
                 <div class="flex justify-between"><span class="text-white/70 text-sm">Hosting</span><span class="text-white font-medium text-sm">Vercel</span></div>
@@ -255,10 +255,10 @@ var App={
 
             if(isCurrent){
                 if(wrapper){
-                    wrapper.className = 'nav-icon-wrapper w-11 h-11 rounded-full flex items-center justify-center text-white btn-chrome  shadow-white/30 border-2 border-white/30 -translate-y-3.5 scale-110 transition-all duration-300';
+                    wrapper.className = 'nav-icon-wrapper w-11 h-11 rounded-full flex items-center justify-center text-white btn-chrome  shadow-white/30 border-2 border-white/30 scale-110 transition-all duration-300';
                 }
                 if(label){
-                    label.className = 'nav-label text-[11px] font-black text-white -translate-y-1 tracking-wider chrome-text transition-all duration-300';
+                    label.className = 'nav-label text-[11px] font-black text-white tracking-wider chrome-text transition-all duration-300';
                 }
             } else {
                 if(wrapper){
@@ -307,9 +307,11 @@ var Library={
         var likedSongs = typeof getLikedSongs === 'function' ? getLikedSongs() : [];
         var pls = typeof getUserPlaylists === 'function' ? getUserPlaylists() : [];
         var likedArtists = typeof getLikedArtists === 'function' ? getLikedArtists() : [];
+        var history = typeof getPlayHistory === 'function' ? getPlayHistory() : [];
         var isLikedTab = Library.activeTab === 'liked';
         var isPlaylistsTab = Library.activeTab === 'playlists';
         var isArtistsTab = Library.activeTab === 'artists';
+        var isHistoryTab = Library.activeTab === 'history';
 
         var html = '<div class="pt-12 px-4 pb-12">' +
             '<div class="flex items-center justify-between mb-4">' +
@@ -327,6 +329,10 @@ var Library={
                 '<button onclick="Library.setTab(\'playlists\')" class="flex-1 py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ' + (isPlaylistsTab ? 'btn-chrome text-white ' : 'text-[#a0a5b0] hover:text-white') + '">' +
                     '<i data-lucide="list-music" class="w-3.5 h-3.5 ' + (isPlaylistsTab ? 'text-blue-400' : '') + '"></i>' +
                     '<span>Playlist</span>' +
+                '</button>' +
+                '<button onclick="Library.setTab(\'history\')" class="flex-1 py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ' + (isHistoryTab ? 'btn-chrome text-white ' : 'text-[#a0a5b0] hover:text-white') + '">' +
+                    '<i data-lucide="history" class="w-3.5 h-3.5 ' + (isHistoryTab ? 'text-emerald-400' : '') + '"></i>' +
+                    '<span>Riwayat</span>' +
                 '</button>' +
             '</div>';
 
@@ -451,6 +457,77 @@ var Library={
                 });
                 html += '</div>';
             }
+        } else if (isHistoryTab) {
+            if(history.length === 0){
+                html += '<div class="text-center text-white/70 py-16 px-4 glass rounded-3xl border border-white/5 mt-2">' +
+                    '<div class="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">' +
+                        '<i data-lucide="history" class="w-10 h-10 text-emerald-400 opacity-60"></i>' +
+                    '</div>' +
+                    '<h3 class="text-white font-bold text-lg mb-1">Belum Ada Riwayat</h3>' +
+                    '<p class="text-xs text-white/70 max-w-xs mx-auto mb-6">Lagu yang kamu putar akan muncul di sini selama 7 hari.</p>' +
+                    '<button onclick="App.switch(\'search\')" class="btn-chrome px-6 py-3 font-bold rounded-full text-xs active:scale-95">Cari & Temukan Lagu</button>' +
+                '</div>';
+            } else {
+                html += '<div class="relative overflow-hidden rounded-2xl p-5 mb-5 bg-gradient-to-r from-emerald-600/30 via-teal-600/20 to-indigo-600/10 border border-white/10 flex items-center justify-between">' +
+                    '<div class="flex items-center gap-4 min-w-0">' +
+                        '<div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-emerald-600 flex items-center justify-center flex-shrink-0">' +
+                            '<i data-lucide="history" class="w-7 h-7 text-white"></i>' +
+                        '</div>' +
+                        '<div class="truncate">' +
+                            '<h2 class="text-lg font-black text-white truncate">Riwayat Diputar</h2>' +
+                            '<p class="text-xs text-[#b3b3b3] mt-0.5">' + history.length + ' lagu &middot; 7 hari terakhir</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<button onclick="Library.confirmClearHistory()" class="btn-chrome p-3.5 rounded-full active:scale-90 flex-shrink-0" title="Hapus Semua">' +
+                        '<i data-lucide="trash-2" class="w-5 h-5"></i>' +
+                    '</button>' +
+                '</div>' +
+                '<div id="history-songs-list" class="space-y-1.5">';
+
+                history.forEach(function(s, i){
+                    var isCur = S.ct && (
+                        S.ct.id === s.id ||
+                        S.ct.videoId === s.videoId ||
+                        (S.ct.title === s.title && S.ct.artist === s.artist)
+                    );
+                    var isPlay = isCur && S.ip;
+                    var isLoad = isCur && S.il;
+
+                    var iconOverlay = '';
+                    if (isLoad) {
+                        iconOverlay = '<div class="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>';
+                    } else if (isPlay) {
+                        iconOverlay = '<div class="flex items-end justify-center gap-[2px] w-5 h-5 pb-0.5"><span class="w-[2px] bg-emerald-400 rounded-full animate-eq-1"></span><span class="w-[2px] bg-emerald-400 rounded-full animate-eq-2"></span><span class="w-[2px] bg-emerald-400 rounded-full animate-eq-3"></span></div>';
+                    } else if (isCur) {
+                        iconOverlay = '<i data-lucide="pause" class="w-5 h-5 text-emerald-400 fill-current"></i>';
+                    } else {
+                        iconOverlay = '<i data-lucide="play" class="w-5 h-5 text-white fill-white"></i>';
+                    }
+
+                    var rowBg = isPlay ? 'bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent border border-emerald-500/30 shadow-md' : (isCur ? 'bg-white/10 border border-white/20' : 'hover:bg-white/5 border border-transparent hover:border-white/5');
+                    var titleClass = isCur ? 'text-emerald-400 font-bold' : 'text-white font-bold';
+
+                    html += '<div class="flex items-center gap-3 p-2.5 rounded-2xl active:scale-[0.99] transition-all group ' + rowBg + '">' +
+                        '<div onclick="Library.playHistoryIndex(' + i + ')" class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">' +
+                            '<div class="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 shadow-md">' +
+                                '<img src="' + s.cover + '" class="w-full h-full object-cover" onerror="this.src=\'' + FI + '\'" />' +
+                                '<div class="absolute inset-0 bg-black/80 ' + (isCur ? 'opacity-100' : 'opacity-0 group-hover:opacity-100') + ' transition-all flex items-center justify-center">' +
+                                    iconOverlay +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="truncate flex-1">' +
+                                '<p class="text-sm truncate transition-colors ' + titleClass + '">' + es(s.title) + '</p>' +
+                                '<p class="text-white/70 text-xs truncate mt-0.5">' + es(s.artist) + ' &middot; ' + timeAgo(s.playedAt) + '</p>' +
+                            '</div>' +
+                        '</div>' +
+                        '<button onclick="Library.removeHistoryIndex(' + i + ')" class="p-2 text-white/70 hover:text-red-400 active:scale-90 transition-all" title="Hapus dari Riwayat">' +
+                            '<i data-lucide="x" class="w-5 h-5"></i>' +
+                        '</button>' +
+                    '</div>';
+                });
+
+                html += '</div>';
+            }
         }
 
         html += '</div>';
@@ -483,6 +560,31 @@ var Library={
         UU(); MP.show(); S.il = true; UB();
         resetLyricsUI(S.ct.videoId);
         loadTrack(S.ct);
+    },
+    playHistoryIndex(index){
+        var history = typeof getPlayHistory === 'function' ? getPlayHistory() : [];
+        if(!history[index]) return;
+        var s = history[index];
+        if (S.ct && (S.ct.id === s.id || S.ct.videoId === s.videoId || (S.ct.title === s.title && S.ct.artist === s.artist)) && AU.src) {
+            TP();
+            return;
+        }
+        S.pl = history;
+        S.pi = index;
+        S.ps = 'playlist';
+        S.ct = S.pl[S.pi];
+        UU(); MP.show(); S.il = true; UB();
+        resetLyricsUI(S.ct.videoId);
+        loadTrack(S.ct);
+    },
+    removeHistoryIndex(index){
+        if(typeof removeHistoryItem === 'function') removeHistoryItem(index);
+    },
+    confirmClearHistory(){
+        var popup=document.createElement('div');popup.className='fixed inset-0 z-[300] flex items-end justify-center bg-black/60';
+        popup.onclick=function(e){if(e.target===popup)popup.remove();};
+        popup.innerHTML='<div class="glass-strong w-full max-w-md rounded-t-3xl p-6 border-t border-white/10" style="animation:slideUp 0.3s ease-out forwards;"><div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div><h3 class="font-bold text-white mb-2">Hapus Semua Riwayat?</h3><p class="text-white/70 text-sm mb-5">Semua riwayat lagu yang diputar akan dihapus permanen dan tidak bisa dikembalikan.</p><div class="flex gap-3"><button onclick="clearPlayHistory();this.closest(\'.fixed\').remove();showToast(\'Riwayat dihapus\')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-full active:scale-95">Hapus</button><button onclick="this.closest(\'.fixed\').remove()" class="px-6 py-3 glass glass-hover text-white rounded-full">Batal</button></div></div>';
+        document.body.appendChild(popup);
     },
     createNew(){
         var popup=document.createElement('div');popup.className='fixed inset-0 z-[300] flex items-end justify-center bg-black/60';
