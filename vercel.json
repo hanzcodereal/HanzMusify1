@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/api/search", "destination": "/api/search" },
     { "source": "/api/lyrics", "destination": "/api/lyrics" },
+    { "source": "/api/lyrics1", "destination": "/api/lyrics1" },
     { "source": "/api/translate", "destination": "/api/translate" },
     { "source": "/api/artist", "destination": "/api/artist" },
     { "source": "/api/album", "destination": "/api/album" },
