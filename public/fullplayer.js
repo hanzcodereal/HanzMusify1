@@ -48,7 +48,7 @@ var FullPlayer={
                             </div>
                             <div id="full-inline-lyrics-empty" class="hidden h-full flex flex-col items-center justify-center text-white/50 text-xs text-center py-8">
                                 <svg class="w-8 h-8 opacity-40 mb-2 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                                <span>Lirik tidak tersedia</span>
+                                <span>Lirik belum tersedia</span>
                             </div>
                             <div id="full-inline-lyrics-content" class="min-h-full flex flex-col justify-center text-left"></div>
                         </div>
@@ -158,7 +158,7 @@ var FullPlayer={
                         <div id="lyrics-empty" class="hidden flex justify-center items-center h-[30vh] w-full text-white/50">
                             <div class="text-center">
                                 <i data-lucide="music" class="w-20 h-20 mx-auto mb-4 opacity-30"></i>
-                                <p class="text-lg">Lirik tidak tersedia</p>
+                                <p class="text-lg">Lirik belum tersedia</p>
                             </div>
                         </div>
                     </div>
@@ -304,6 +304,10 @@ var FullPlayer={
                 <button onclick="gid('full-more-sheet').remove();FullPlayer.openArtist();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer">
                     <i data-lucide="user" class="w-5 h-5 text-white"></i>
                     <span class="text-xs font-semibold text-white/90">Lihat Artis</span>
+                </button>
+                <button onclick="toggleLyricsTranslate(); gid('full-more-sheet').remove();" class="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 transition cursor-pointer" style="opacity: ${S.lyricsTranslate ? '1' : '0.5'};">
+                    <i data-lucide="languages" class="w-5 h-5 ${S.lyricsTranslate ? 'text-rose-400' : 'text-white'}"></i>
+                    <span class="text-xs font-semibold ${S.lyricsTranslate ? 'text-rose-400' : 'text-white/90'}">Terjemahan</span>
                 </button>
             </div>
 

@@ -1,4 +1,4 @@
-const API={search:'/api/search',artist:'/api/artist',suggest:'/api/suggest',lyrics:'/api/lyrics',ytplay:'/api/ytplay'};
+const API={search:'/api/search',artist:'/api/artist',suggest:'/api/suggest',lyrics:'/api/lyrics',lyrics1:'/api/lyrics1',ytplay:'/api/ytplay'};
 const FI='data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2523374151%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20width%3D%22100%2525%22%20height%3D%22100%2525%22%20fill%3D%22%252318181b%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%252327272a%22%20stroke%3D%22none%22%2F%3E%3Cpath%20d%3D%22M9%2017V5l10-2v12%22%20stroke%3D%22%252352525b%22%20stroke-width%3D%221%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2217%22%20r%3D%223%22%20fill%3D%22%252352525b%22%20stroke%3D%22none%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2215%22%20r%3D%223%22%20fill%3D%22%252352525b%22%20stroke%3D%22none%22%2F%3E%3C%2Fsvg%3E';
 
 function toHDCover(url, videoId) {
@@ -29,10 +29,11 @@ function handleImgError(img) {
     }
 }
 
-const S={ht:[],sr:[],ar:[],hc:[],hcp:[],hca:[],sq:'',filter:'all',ct:null,pl:[],pi:-1,ps:'',ip:false,il:false,rm:'all',isShuffle:false,currentAccentColor:'#f43f5e',autoNext:true,iv:null,pt:0,pd:0,at:'home',ld:{type:'none',lines:[]},cli:-1,lo:false,lyricOffset:0,playbackRate:1.0,sleepSecondsLeft:0,sleepEndWithTrack:false};
+const S={ht:[],sr:[],ar:[],hc:[],hcp:[],hca:[],sq:'',filter:'all',ct:null,pl:[],pi:-1,ps:'',ip:false,il:false,rm:'all',isShuffle:false,currentAccentColor:'#f43f5e',autoNext:true,iv:null,pt:0,pd:0,at:'home',ld:{type:'none',lines:[]},cli:-1,lo:false,lyricOffset:0,playbackRate:1.0,sleepSecondsLeft:0,sleepEndWithTrack:false,lyricsTranslate:false};
 
 try{S.playbackRate=parseFloat(localStorage.getItem('hanz_playback_rate'))||1.0;}catch(e){S.playbackRate=1.0;}
 try{var storedAutoNext = localStorage.getItem('hanz_auto_next');if(storedAutoNext!==null){S.autoNext = storedAutoNext==='true';}}catch(e){}
+try{var storedLyricsTranslate = localStorage.getItem('hanz_lyrics_translate');S.lyricsTranslate = storedLyricsTranslate==='true';}catch(e){}
 
 function fm(s){if(isNaN(s))return"0:00";const m=Math.floor(s/60),se=Math.floor(s%60);return m+':'+(se<10?'0':'')+se;}
 function es(t){if(!t)return'';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
@@ -385,6 +386,14 @@ function SF(){
         showToast(S.isShuffle ? 'Mode acak (Shuffle) diaktifkan' : 'Mode acak (Shuffle) dimatikan');
     }
 }
+function toggleLyricsTranslate(){
+    S.lyricsTranslate = !S.lyricsTranslate;
+    try { localStorage.setItem('hanz_lyrics_translate', S.lyricsTranslate); } catch(e) {}
+    if(typeof showToast === 'function'){
+        showToast(S.lyricsTranslate ? 'Terjemahan lirik diaktifkan' : 'Terjemahan lirik dimatikan');
+    }
+    if(S.ct && S.ct.videoId && typeof FL === 'function') FL(S.ct.videoId);
+}
 
 function shareTrack(){if(!S.ct||!S.ct.videoId)return;var url=location.origin+'/play/'+S.ct.videoId+'?share=true';updateOG(S.ct.title,S.ct.cover);if(navigator.share){navigator.share({title:S.ct.title,text:S.ct.title+' - '+S.ct.artist,url:url}).catch(function(){});}}
 
@@ -455,6 +464,12 @@ function smoothScrollLyricContainer(container, targetTop, duration) {
     }
 }
 
+async function fetchLyricsFrom(source, vid, translateFlag, lang){
+    var endpoint = API[source] || API.lyrics;
+    var r = await fetch(endpoint+'?id='+vid+'&translate='+translateFlag+'&lang='+lang+'&t='+Date.now());
+    return await r.json();
+}
+
 async function FL(vid){
     var l=gid('lyrics-loading'),c=gid('lyrics-content'),e=gid('lyrics-empty');
     var il=gid('full-inline-lyrics-loading'),ic=gid('full-inline-lyrics-content'),ie=gid('full-inline-lyrics-empty');
@@ -466,8 +481,13 @@ async function FL(vid){
     if(ie) ie.classList.add('hidden');
     S.ld={type:'none',lines:[]};S.cli=-1;S.lyricOffset=0;updateSyncBadge();
     try{
-        var r=await fetch(API.lyrics+'?id='+vid+'&t='+Date.now());
-        var d=await r.json();
+        var trFlag = S.lyricsTranslate ? '1' : '0';
+        var lang = 'id';
+        // Coba lirik.js dulu; kalau belum ada, otomatis fallback ke lyrics1.js.
+        var d = await fetchLyricsFrom('lyrics', vid, trFlag, lang);
+        if(!(d.status && d.result && d.result.lyrics && d.result.lyrics.lines.length>0)){
+            try{ d = await fetchLyricsFrom('lyrics1', vid, trFlag, lang); }catch(e2){}
+        }
         if(d.status&&d.result.lyrics&&d.result.lyrics.lines.length>0){
             S.ld=d.result.lyrics;var html='';var inlineHtml='';
             var isPlain = S.ld.type === 'plain';
