@@ -39,6 +39,11 @@ module.exports = async (req, res) => {
     if (req.method !== 'GET') { res.status(405).json({ status: false, message: 'Method not allowed' }); return; }
     const videoId = (req.query.id || '').trim();
     if (!videoId) { res.status(400).json({ status: false, message: 'Parameter id wajib diisi' }); return; }
+    // Terjemahan lirik bersifat opsional dan default-nya OFF (mati).
+    // Kirim ?translate=1 (atau translate=true/on) untuk mengaktifkan terjemahan.
+    const trParam = String(req.query.translate ?? '').trim().toLowerCase();
+    const doTranslate = trParam === '1' || trParam === 'true' || trParam === 'on' || trParam === 'yes';
+    const targetLang = (req.query.lang || 'id').trim().toLowerCase();
 
     try {
         const ytData = await makeRequest({
@@ -64,9 +69,9 @@ module.exports = async (req, res) => {
             }}catch(e){}}
 
         // Translate lirik ke Bahasa Indonesia (dengan timeout race supaya tidak menggantung request)
-        if (lyricsData.lines && lyricsData.lines.length > 0) {
+        if (doTranslate && lyricsData.lines && lyricsData.lines.length > 0) {
             try {
-                const transPromise = translateLines(lyricsData.lines);
+                const transPromise = translateLines(lyricsData.lines, targetLang);
                 const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(lyricsData.lines), 3500));
                 lyricsData.lines = await Promise.race([transPromise, timeoutPromise]);
             } catch(e) {}
